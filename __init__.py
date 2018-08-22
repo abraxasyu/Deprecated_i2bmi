@@ -1,1 +1,1 @@
-name = "I2BMI"
+name = "i2bmi"
