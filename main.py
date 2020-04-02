@@ -156,7 +156,13 @@ def load_cci9():
     return cci9
 
 def icd9tocci(df,col_icd='icd9'):
-    """convert icd9 to CCI"""
+    """
+    convert icd9 to CCI
+
+    :param df: A Pandas Dataframe containing ICD-9 data
+    :param col_icd: Name of the column containing ICD-9 data
+    :returns: A dataframe with new columns for the CCI data corresponding to each ICD-9 code.
+    """
     cci9 = load_cci9()
     return df.merge(cci9,how='left',left_on=col_icd,right_on='ICD-9-CM CODE')
     
@@ -208,7 +214,13 @@ def load_cci10():
     return cci10
 
 def icd10tocci(df,col_icd='icd10'):
-    """convert icd10 to CCI"""
+    """
+    convert icd10 to CCI
+
+    :param df: A Pandas Dataframe containing ICD-10 data
+    :param col_icd: Name of the column containing ICD-10 data
+    :returns: A dataframe with new columns for the CCI data corresponding to each ICD-10 code.
+    """
     cci10 = load_cci10()
     return df.merge(cci10,how='left',left_on=col_icd,right_on='ICD-10-CM CODE')
 
