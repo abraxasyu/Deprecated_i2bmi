@@ -327,7 +327,13 @@ def onehotify(df,col_id,col_val):
     return pd.concat([df.loc[:,[col_id]],pd.get_dummies(df[col_val])],axis=1).groupby(col_id).max()
 
 def ndc2rxcui(df_med,col_ndc='ndc'):
-    """convert NDC codes to RXCUI"""
+    """
+    convert NDC codes to RXCUI
+
+    :param df_med: A Pandas DataFrame with a column containing ndc data
+    :param col_ncd: Name of the column containing NDC data
+    :returns: A Pandas DataFrame with the following columns: ndc (the NDC identifier), rxcui (the corresponding RXCUI identifier), start (the start date), and end (the end date).
+    """
     print('Converting NDC to RXCUI')
     output=[]
     ndclist=df_med[col_ndc].unique()
