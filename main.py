@@ -250,7 +250,13 @@ def load_ccs9():
     return ccs9
 
 def icd9toccs(df,col_icd='icd9'):
-    """convert icd9 to CCS"""
+    """
+    convert icd9 to CCS
+
+    :param df: A Pandas Dataframe containing ICD-9 data
+    :param col_icd: Name of the column containing ICD-9 data
+    :returns: A dataframe with new columns for the CCS data corresponding to each ICD-9 code.
+    """
     ccs9 = load_ccs9()
     output = df.merge(ccs9,how='left',left_on=col_icd,right_on='ICD-9-CM CODE')
     if col_icd!='ICD-9-CM CODE':
@@ -275,7 +281,13 @@ def load_ccs10():
     
 
 def icd10toccs(df,col_icd='icd10'):
-    """convert icd10 to ccs"""
+    """
+    convert icd10 to ccs
+
+    :param df: A Pandas Dataframe containing ICD-10 data
+    :param col_icd: Name of the column containing ICD-10 data
+    :returns: A dataframe with new columns for the CCS data corresponding to each ICD-10 code.
+    """
     ccs10 = load_ccs10()
     output = df.merge(ccs10,how='left',left_on=col_icd,right_on='ICD-10-CM CODE')
     if col_icd!='ICD-10-CM CODE':
