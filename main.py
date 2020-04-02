@@ -9,6 +9,8 @@ def load_icd9to10():
     """
     load icd 9 to icd 10 mapping file
     https://www.cms.gov/Medicare/Coding/ICD10/2018-ICD-10-CM-and-GEMs.html
+
+    :returns: A file mapping icd 9 to icd 10
     """
     icd9to10 = pd.read_csv(pkg_resources.resource_filename(__name__,'2018_I9gem.txt'),delim_whitespace=True,header=None,dtype=str)
     icd9to10.columns=['icd9','icd10','flag']
@@ -18,6 +20,8 @@ def load_icd10to9():
     """
     load icd 10 to icd 9 mapping file
     https://www.cms.gov/Medicare/Coding/ICD10/2018-ICD-10-CM-and-GEMs.html
+
+    :returns: A file mapping icd 10 to icd 9
     """
     icd10to9 = pd.read_csv(pkg_resources.resource_filename(__name__,'2018_I10gem.txt'),delim_whitespace=True,header=None,dtype=str)
     icd10to9.columns=['icd10','icd9','flag']
@@ -57,6 +61,8 @@ def loadelixcomo():
     Quan H, Sundararajan V, Halfon P, Fong A, Burnand B, Luthi JC, Saunders LD, Beck CA, Feasby TE, Ghali WA. 
     Coding algorithms for defining comorbidities in ICD-9-CM and ICD-10 administrative data. 
     Medical care. 2005 Nov 1:1130-9.
+
+    :returns: the Elixhauser comorbidities mapping file
     """
     elixcomo = pd.read_csv(pkg_resources.resource_filename(__name__,'Elixhauser_Comorbidities.csv')).iloc[:,1:]
     return elixcomo
@@ -95,6 +101,8 @@ def load_cci9():
     """
     load mapping file from icd9 to Chronic Condition Indicator (CCI)
     https://www.hcup-us.ahrq.gov/toolssoftware/chronic/chronic.jsp
+
+    :returns: Mapping file from icd9 to Chronic Condition Indicator (CCI)
     """
     cci9 = pd.read_csv(pkg_resources.resource_filename(__name__,'cci2015.csv'),skiprows=1)
     cci9.columns = [i.strip('\'') for i in cci9.columns]
@@ -143,6 +151,8 @@ def load_cci10():
     """
     load mapping file from icd10 to Chronic Condition Indicator (CCI)
     https://www.hcup-us.ahrq.gov/toolssoftware/chronic_icd10/chronic_icd10.jsp
+
+    :returns: Mapping file from icd10 to Chronic Condition Indicator (CCI)
     """
     
     cci10 = pd.read_csv(pkg_resources.resource_filename(__name__,'cci_icd10cm_2019_1.csv'))
@@ -190,6 +200,8 @@ def load_ccs9():
     """
     load mapping file from icd9 to Clinical Classification Software (CCS)
     https://www.hcup-us.ahrq.gov/toolssoftware/ccs/ccs.jsp
+
+    :returns: Mapping file from icd9 to Clinical Classification Software (CCS)
     """
     ccs9 = pd.read_csv(pkg_resources.resource_filename(__name__,'$dxref 2015.csv'))
     ccs9 = ccs9.reset_index()
@@ -221,6 +233,8 @@ def load_ccs10():
     """
     load mapping file from icd10 to Clinical Classification Software (CCS)
     https://www.hcup-us.ahrq.gov/toolssoftware/ccs10/ccs10.jsp
+
+    :returns: Mapping file form icd10 to Clinical Classification Software (CCS)
     """
     ccs10 = pd.read_csv(pkg_resources.resource_filename(__name__,'ccs_dx_icd10cm_2019_1.csv'))
     ccs10.columns=[i.strip('\'') for i in ccs10.columns]
