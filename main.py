@@ -393,7 +393,16 @@ def rxcui2class(df_mapin,getname=True):
     return pd.DataFrame(output)
 
 def ndc2class(df_med,col_ndc='ndc',getname=True,indexcol='ROWID',timecol='TIME'):
-    """combine NDC2RXCUI and RXCUI2CLASS to go from NDC to CLASS"""
+    """
+    combine NDC2RXCUI and RXCUI2CLASS to go from NDC to CLASS
+
+    :param df_med: A Pandas DataFrame with a column containing ndc data
+    :param col_ncd: Name of the column in df_containing NDC data
+    :param getname: If True, this function will internally use the class name as the identifier. If False, this function will internally use the class ID.
+    :param indexcol:
+    :param timecol:
+    :returns: A Pandas DataFrame with additional drug class data.
+    """
     map1=ndc2rxcui(df_med,col_ndc=col_ndc)
     map2=rxcui2class(map1,getname=getname)
 
