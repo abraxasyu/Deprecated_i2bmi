@@ -357,7 +357,13 @@ def ndc2rxcui(df_med,col_ndc='ndc'):
     return output
 
 def rxcui2class(df_mapin,getname=True):
-    """convert RXCUI to drug classes"""
+    """
+    convert RXCUI to drug classes
+
+    :param df_mapin: A Pandas DataFrame containing RXCUI identifiers. This must be present in a column called "rxcui".
+    :param getname: If True, this function will internally use the class name as the identifier. If False, this function will internally use the class ID.
+    :returns: A Pandas DataFrame with additional drug class data.
+    """
     print('Converting rxcui to drug class')
     rxcuilist=df_mapin['rxcui'].unique()
     lenrxcui=len(rxcuilist)
