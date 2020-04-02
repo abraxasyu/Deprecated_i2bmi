@@ -98,6 +98,11 @@ def elixcomoscore(df,col_icd,col_id):
     van Walraven C, Austin PC, Jennings A, Quan H, Forster AJ. 
     A modification of the Elixhauser comorbidity measures into a point system for hospital death using administrative data. 
     Medical care. 2009 Jun 1:626-33.
+
+    :param df: A Pandas DataFrame containing a column with patient IDs (col_id) and ICD 9 or 10 codes (col_icd).
+    :param col_icd: The column containing ICD codes.
+    :param col_id: The column containing patient IDs.
+    :returns: A Pandas DataFrame with three columns named col_id, "ElixComo", and "ElixComoScore". The ElixComo column stores particular comorbidities, while the ElixComoScore column stores the score for each comorbidity. The id column specified by the user will not be renamed.
     """
     output = icdtoelixcomo(df,col_icd)
     output = output.loc[output['ElixComo'].notnull(),:]
