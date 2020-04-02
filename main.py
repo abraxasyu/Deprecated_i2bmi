@@ -73,7 +73,13 @@ def loadelixcomo():
     return elixcomo
 
 def icdtoelixcomo(df,col_icd):
-    """convert icd 9 or 10 to Elixhauser Comorbidities"""
+    """
+    convert icd 9 or 10 to Elixhauser Comorbidities
+
+    :param df: A Pandas DataFrame containing ICD 9 or 10 data.
+    :param col_icd: Name of the column in df containing ICD 9 or 10 codes.
+    :returns: A Dataframe with two new columns, ElixComo (containing Elixhauser comorbidities) and ElixComoScore (containing the scores for each comorbidity).
+    """
     elixcomo = loadelixcomo()
     unqcomos = elixcomo['Comorbidity'].unique()
     df['ElixComo']=None
