@@ -31,6 +31,11 @@ def icdconvert(df,col_icd='icd',icd_version=9):
     """
     convert icd 9 to 10, or 10 to 9
     https://www.cms.gov/Medicare/Coding/ICD10/2018-ICD-10-CM-and-GEMs.html
+
+    :param df: Pandas DataFrame containing ICD 9 or 10 data
+    :param col_icd: Name of the column in df with ICD codes
+    :param icd_version: The source version.
+    :returns: A pandas Dataframe with converted ICD codes.
     """
     if icd_version==9:
         source='icd9'
@@ -62,7 +67,7 @@ def loadelixcomo():
     Coding algorithms for defining comorbidities in ICD-9-CM and ICD-10 administrative data. 
     Medical care. 2005 Nov 1:1130-9.
 
-    :returns: the Elixhauser comorbidities mapping file
+    :returns: The Elixhauser comorbidities mapping file
     """
     elixcomo = pd.read_csv(pkg_resources.resource_filename(__name__,'Elixhauser_Comorbidities.csv')).iloc[:,1:]
     return elixcomo
