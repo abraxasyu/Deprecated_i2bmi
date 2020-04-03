@@ -58,3 +58,5 @@ html_static_path = ['_static']
 import sys
 
 sys.path.append("..")
+
+master_doc = 'index'
