@@ -3,4 +3,4 @@ Biomedical Informatics toolkit by Institute for Informatics at Washington Univer
 
 This package provides tools for converting medical data between different formats. Here is a diagram showing which function to use, based on the source and destination formats:
 
-![](Format_Diagram.jpg)
+.. image:: Format_Diagram.jpg
