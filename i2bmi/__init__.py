@@ -1,3 +1,18 @@
+"""
+I2BMI
+=====
+
+Biomedical Informatics toolkit by Institute for Informatics at Washington University School of Medicine in St. Louis
+
+This package provides tools for converting medical data between different formats. Here is a diagram showing which function to use, based on the source and destination formats:
+
+.. image:: ../Format_Diagram.jpg
+
+API Guide
+---------
+"""
+
+
 import pandas as pd
 import numpy as np
 import os
@@ -5,23 +20,38 @@ import requests
 import time
 import pkg_resources
 
-#load icd 9 to icd 10 mapping file
-#https://www.cms.gov/Medicare/Coding/ICD10/2018-ICD-10-CM-and-GEMs.html
 def load_icd9to10():
+    """
+    load icd 9 to icd 10 mapping file
+    https://www.cms.gov/Medicare/Coding/ICD10/2018-ICD-10-CM-and-GEMs.html
+
+    :returns: A file mapping icd 9 to icd 10
+    """
     icd9to10 = pd.read_csv(pkg_resources.resource_filename(__name__,'2018_I9gem.txt'),delim_whitespace=True,header=None,dtype=str)
     icd9to10.columns=['icd9','icd10','flag']
     return icd9to10
 
-#load icd 10 to icd 9 mapping file
-#https://www.cms.gov/Medicare/Coding/ICD10/2018-ICD-10-CM-and-GEMs.html
 def load_icd10to9():
+    """
+    load icd 10 to icd 9 mapping file
+    https://www.cms.gov/Medicare/Coding/ICD10/2018-ICD-10-CM-and-GEMs.html
+
+    :returns: A file mapping icd 10 to icd 9
+    """
     icd10to9 = pd.read_csv(pkg_resources.resource_filename(__name__,'2018_I10gem.txt'),delim_whitespace=True,header=None,dtype=str)
     icd10to9.columns=['icd10','icd9','flag']
     return icd10to9
 
-#convert icd 9 to 10, or 10 to 9
-#https://www.cms.gov/Medicare/Coding/ICD10/2018-ICD-10-CM-and-GEMs.html
 def icdconvert(df,col_icd='icd',icd_version=9):
+    """
+    convert icd 9 to 10, or 10 to 9
+    https://www.cms.gov/Medicare/Coding/ICD10/2018-ICD-10-CM-and-GEMs.html
+
+    :param df: Pandas DataFrame containing ICD 9 or 10 data
+    :param col_icd: Name of the column in df with ICD codes
+    :param icd_version: The source version.
+    :returns: A pandas Dataframe with converted ICD codes.
+    """
     if icd_version==9:
         source='icd9'
         target='icd10'
@@ -45,16 +75,26 @@ def icdconvert(df,col_icd='icd',icd_version=9):
     
     return output
 
-# load Elixhauser comorbidities mapping file
-#Quan H, Sundararajan V, Halfon P, Fong A, Burnand B, Luthi JC, Saunders LD, Beck CA, Feasby TE, Ghali WA. 
-#Coding algorithms for defining comorbidities in ICD-9-CM and ICD-10 administrative data. 
-#Medical care. 2005 Nov 1:1130-9.
 def loadelixcomo():
+    """
+    load Elixhauser comorbidities mapping file
+    Quan H, Sundararajan V, Halfon P, Fong A, Burnand B, Luthi JC, Saunders LD, Beck CA, Feasby TE, Ghali WA. 
+    Coding algorithms for defining comorbidities in ICD-9-CM and ICD-10 administrative data. 
+    Medical care. 2005 Nov 1:1130-9.
+
+    :returns: The Elixhauser comorbidities mapping file
+    """
     elixcomo = pd.read_csv(pkg_resources.resource_filename(__name__,'Elixhauser_Comorbidities.csv')).iloc[:,1:]
     return elixcomo
 
-#convert icd 9 or 10 to Elixhauser Comorbidities
 def icdtoelixcomo(df,col_icd):
+    """
+    convert icd 9 or 10 to Elixhauser Comorbidities
+
+    :param df: A Pandas DataFrame containing ICD 9 or 10 data.
+    :param col_icd: Name of the column in df containing ICD 9 or 10 codes.
+    :returns: A Dataframe with two new columns, ElixComo (containing Elixhauser comorbidities) and ElixComoScore (containing the scores for each comorbidity).
+    """
     elixcomo = loadelixcomo()
     unqcomos = elixcomo['Comorbidity'].unique()
     df['ElixComo']=None
@@ -67,11 +107,18 @@ def icdtoelixcomo(df,col_icd):
     return df
   
 
-# score patients based on elixhauser comorbidities
-#van Walraven C, Austin PC, Jennings A, Quan H, Forster AJ. 
-#A modification of the Elixhauser comorbidity measures into a point system for hospital death using administrative data. 
-#Medical care. 2009 Jun 1:626-33.
 def elixcomoscore(df,col_icd,col_id):
+    """
+    score patients based on elixhauser comorbidities
+    van Walraven C, Austin PC, Jennings A, Quan H, Forster AJ. 
+    A modification of the Elixhauser comorbidity measures into a point system for hospital death using administrative data. 
+    Medical care. 2009 Jun 1:626-33.
+
+    :param df: A Pandas DataFrame containing a column with patient IDs (col_id) and ICD 9 or 10 codes (col_icd).
+    :param col_icd: The column containing ICD codes.
+    :param col_id: The column containing patient IDs.
+    :returns: A Pandas DataFrame with three columns named col_id, "ElixComo", and "ElixComoScore". The ElixComo column stores particular comorbidities, while the ElixComoScore column stores the score for each comorbidity. The id column specified by the user will not be renamed.
+    """
     output = icdtoelixcomo(df,col_icd)
     output = output.loc[output['ElixComo'].notnull(),:]
     output = output.loc[:,[col_id,'ElixComo','ElixComoScore']]
@@ -81,9 +128,13 @@ def elixcomoscore(df,col_icd,col_id):
     return output
     
     
-# load mapping file from icd9 to Chronic Condition Indicator (CCI)
-#https://www.hcup-us.ahrq.gov/toolssoftware/chronic/chronic.jsp
 def load_cci9():
+    """
+    load mapping file from icd9 to Chronic Condition Indicator (CCI)
+    https://www.hcup-us.ahrq.gov/toolssoftware/chronic/chronic.jsp
+
+    :returns: Mapping file from icd9 to Chronic Condition Indicator (CCI)
+    """
     cci9 = pd.read_csv(pkg_resources.resource_filename(__name__,'cci2015.csv'),skiprows=1)
     cci9.columns = [i.strip('\'') for i in cci9.columns]
     
@@ -119,17 +170,27 @@ def load_cci9():
     
     return cci9
 
-#convert icd9 to CCI
 def icd9tocci(df,col_icd='icd9'):
+    """
+    convert icd9 to CCI
+
+    :param df: A Pandas Dataframe containing ICD-9 data
+    :param col_icd: Name of the column containing ICD-9 data
+    :returns: A dataframe with new columns for the CCI data corresponding to each ICD-9 code.
+    """
     cci9 = load_cci9()
     return df.merge(cci9,how='left',left_on=col_icd,right_on='ICD-9-CM CODE')
     
     
     
 
-# load mapping file from icd10 to Chronic Condition Indicator (CCI)
-#https://www.hcup-us.ahrq.gov/toolssoftware/chronic_icd10/chronic_icd10.jsp
 def load_cci10():
+    """
+    load mapping file from icd10 to Chronic Condition Indicator (CCI)
+    https://www.hcup-us.ahrq.gov/toolssoftware/chronic_icd10/chronic_icd10.jsp
+
+    :returns: Mapping file from icd10 to Chronic Condition Indicator (CCI)
+    """
     
     cci10 = pd.read_csv(pkg_resources.resource_filename(__name__,'cci_icd10cm_2019_1.csv'))
     
@@ -167,14 +228,24 @@ def load_cci10():
     
     return cci10
 
-#convert icd10 to CCI
 def icd10tocci(df,col_icd='icd10'):
+    """
+    convert icd10 to CCI
+
+    :param df: A Pandas Dataframe containing ICD-10 data
+    :param col_icd: Name of the column containing ICD-10 data
+    :returns: A dataframe with new columns for the CCI data corresponding to each ICD-10 code.
+    """
     cci10 = load_cci10()
     return df.merge(cci10,how='left',left_on=col_icd,right_on='ICD-10-CM CODE')
 
-# load mapping file from icd9 to Clinical Classification Software (CCS)
-#https://www.hcup-us.ahrq.gov/toolssoftware/ccs/ccs.jsp
 def load_ccs9():
+    """
+    load mapping file from icd9 to Clinical Classification Software (CCS)
+    https://www.hcup-us.ahrq.gov/toolssoftware/ccs/ccs.jsp
+
+    :returns: Mapping file from icd9 to Clinical Classification Software (CCS)
+    """
     ccs9 = pd.read_csv(pkg_resources.resource_filename(__name__,'$dxref 2015.csv'))
     ccs9 = ccs9.reset_index()
     for col in ccs9.columns:
@@ -193,17 +264,27 @@ def load_ccs9():
     ccs9.columns = [i.replace('CCS DIAGNOSIS CATEGORIES LABELS','CCS CATEGORY DESCRIPTION') for i in ccs9.columns]
     return ccs9
 
-#convert icd9 to CCS
 def icd9toccs(df,col_icd='icd9'):
+    """
+    convert icd9 to CCS
+
+    :param df: A Pandas Dataframe containing ICD-9 data
+    :param col_icd: Name of the column containing ICD-9 data
+    :returns: A dataframe with new columns for the CCS data corresponding to each ICD-9 code.
+    """
     ccs9 = load_ccs9()
     output = df.merge(ccs9,how='left',left_on=col_icd,right_on='ICD-9-CM CODE')
     if col_icd!='ICD-9-CM CODE':
         output.drop('ICD-9-CM CODE',axis=1,inplace=True)
     return output
 
-# load mapping file from icd10 to Clinical Classification Software (CCS)
-#https://www.hcup-us.ahrq.gov/toolssoftware/ccs10/ccs10.jsp
 def load_ccs10():
+    """
+    load mapping file from icd10 to Clinical Classification Software (CCS)
+    https://www.hcup-us.ahrq.gov/toolssoftware/ccs10/ccs10.jsp
+
+    :returns: Mapping file form icd10 to Clinical Classification Software (CCS)
+    """
     ccs10 = pd.read_csv(pkg_resources.resource_filename(__name__,'ccs_dx_icd10cm_2019_1.csv'))
     ccs10.columns=[i.strip('\'') for i in ccs10.columns]
     for col in ccs10.columns:
@@ -214,16 +295,22 @@ def load_ccs10():
     return ccs10
     
 
-#convert icd10toccs    
 def icd10toccs(df,col_icd='icd10'):
+    """
+    convert icd10 to ccs
+
+    :param df: A Pandas Dataframe containing ICD-10 data
+    :param col_icd: Name of the column containing ICD-10 data
+    :returns: A dataframe with new columns for the CCS data corresponding to each ICD-10 code.
+    """
     ccs10 = load_ccs10()
     output = df.merge(ccs10,how='left',left_on=col_icd,right_on='ICD-10-CM CODE')
     if col_icd!='ICD-10-CM CODE':
         output.drop('ICD-10-CM CODE',axis=1,inplace=True)
     return output
 
-#parse diagnosis dataset and include Clinical Classification Software, Chronic Glag, and Elixhauser Comorbidity
 def parsediag(dfin,col_icd,col_id,icd_version):
+    """parse diagnosis dataset and include Clinical Classification Software, Chronic Glag, and Elixhauser Comorbidity"""
     df = dfin.copy()
     
     if icd_version==9:
@@ -250,12 +337,18 @@ def parsediag(dfin,col_icd,col_id,icd_version):
     
     return df
 
-# onehotifying categorical columns
 def onehotify(df,col_id,col_val):
+    """onehotifying categorical columns"""
     return pd.concat([df.loc[:,[col_id]],pd.get_dummies(df[col_val])],axis=1).groupby(col_id).max()
 
-#convert NDC codes to RXCUI
 def ndc2rxcui(df_med,col_ndc='ndc'):
+    """
+    convert NDC codes to RXCUI
+
+    :param df_med: A Pandas DataFrame with a column containing ndc data
+    :param col_ncd: Name of the column containing NDC data
+    :returns: A Pandas DataFrame with the following columns: ndc (the NDC identifier), rxcui (the corresponding RXCUI identifier), start (the start date), and end (the end date).
+    """
     print('Converting NDC to RXCUI')
     output=[]
     ndclist=df_med[col_ndc].unique()
@@ -278,8 +371,14 @@ def ndc2rxcui(df_med,col_ndc='ndc'):
     output=pd.DataFrame(output).replace({r'^\s*$':None}, regex=True).dropna()
     return output
 
-#convert RXCUI to drug classes
 def rxcui2class(df_mapin,getname=True):
+    """
+    convert RXCUI to drug classes
+
+    :param df_mapin: A Pandas DataFrame containing RXCUI identifiers. This must be present in a column called "rxcui".
+    :param getname: If True, this function will internally use the class name as the identifier. If False, this function will internally use the class ID.
+    :returns: A Pandas DataFrame with additional drug class data.
+    """
     print('Converting rxcui to drug class')
     rxcuilist=df_mapin['rxcui'].unique()
     lenrxcui=len(rxcuilist)
@@ -308,8 +407,17 @@ def rxcui2class(df_mapin,getname=True):
         time.sleep(1/20)
     return pd.DataFrame(output)
 
-#combine NDC2RXCUI and RXCUI2CLASS to go from NDC to CLASS
 def ndc2class(df_med,col_ndc='ndc',getname=True,indexcol='ROWID',timecol='TIME'):
+    """
+    combine NDC2RXCUI and RXCUI2CLASS to go from NDC to CLASS
+
+    :param df_med: A Pandas DataFrame with a column containing ndc data
+    :param col_ncd: Name of the column in df_containing NDC data
+    :param getname: If True, this function will internally use the class name as the identifier. If False, this function will internally use the class ID.
+    :param indexcol:
+    :param timecol:
+    :returns: A Pandas DataFrame with additional drug class data.
+    """
     map1=ndc2rxcui(df_med,col_ndc=col_ndc)
     map2=rxcui2class(map1,getname=getname)
 
